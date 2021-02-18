@@ -8,9 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var isPresented:Bool = false
+    @ObservedObject private var storeListVM = StoreListViewModel()
+    
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        VStack {
+            List(storeListVM.store,id: \.storeId){ store in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(store.name).font(.headline)
+                    Text(store.address).font(.body)
+                }
+            }.listStyle(PlainListStyle())
+        }
+        .sheet(isPresented: $isPresented, onDismiss: {
+            storeListVM.getAll()
+        }, content: {
+            AddStoreView()
+        })
+        .navigationBarItems(trailing: Button(action: {
+            isPresented = true
+        }, label: {
+            Image(systemName: "plus")
+        }))
+        .navigationTitle("Grocerry App")
+        .embedInNavigationView()
+        
+        .onAppear(perform: {
+            storeListVM.getAll()
+        })
     }
 }
 
